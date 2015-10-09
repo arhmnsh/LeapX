@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>LEAPPP!!</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+      html, body, .container {
+        height: 100%;
+      }
+      canvas {
+        z-index: -1;
+      }
+      .container  {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /*.card {
+      	height: 100%;
+      	width: 100px;
+      	background-color: #E46119;
+      	border: 1px solid #626262;
+      	margin: 30px;
+        transition: all .2s ease-in-out;
+      }
+
+      .card:hover {
+        background-color: red;
+        transform: scale(1.1);
+      }
+
+      .hover {
+        background-color: red;
+        box-shadow: 0px 0px 63px rgba(0,0,0,0.8);
+        transform: scale(1.1);
+      }
+*/
+      #cursor {
+        width: 100px;
+        height: 100px;
+        position: fixed;
+        margin-left: -50px;
+        margin-top: -50px;
+        z-index: 910;
+        border-radius: 50%;
+        background: transparent radial-gradient(circle at 100px 100px , #5CABFF, #000) repeat scroll 0% 0%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+
+      <div id="panel1" class="hover panel">
+        <div class="front card">
+            Flip your hand over
+        </div>
+        <div class="back card">
+            Surprise!
+        </div>
+      </div>
+
+      <div id="panel2" class="hover panel">
+        <div class="front card">
+            Flip your hand over
+        </div>
+        <div class="back card">
+            Surprise!
+        </div>
+      </div>
+
+      <div id="panel3" class="hover panel">
+        <div class="front card">
+            Flip your hand over
+        </div>
+        <div class="back card">
+            Surprise!
+        </div>
+      </div>
+
+
+
+<!--       <div id="card1" class="card"></div>
+      <div id="card2" class="card"></div>
+      <div id="card3" class="card"></div>
+      <div id="card4" class="card"></div>
+      <div id="card5" class="card"></div>
+ -->
+        <div class="output"></div>
+
+    </div>
+    <div id="cursor"></div>
+
+    <p>Normalized Position: <span id="normPosition">…</span></p>
+    <p>Tip Position: <span id="tipPosition">…</span></p>
+
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="js/leap-0.6.4.js"></script>
+    <script src="js/leap-plugins-0.1.11.js"></script>
+    <script src="js/leap.rigged-hand-0.1.7.js"></script>
+    <script src="js/leap.hand-hold.js"></script>
+
+    <script src="js/main.js"></script>
+
+    <script>
+    var cursor = document.getElementById('cursor');
+    (window.controller = new Leap.Controller)
+    .use('screenPosition', {scale: 1})
+    .use('handHold')
+
+    .use('riggedHand', {
+      dotsMode: true
+    })
+    .connect()
+    .on('frame', function(frame) {
+
+      //
+      // var normalizedDisplay = document.getElementById("normPosition");
+      // var tipDisplay = document.getElementById("tipPosition");
+      //
+      // if(frame.pointables.length > 0)
+      // {
+      //     var pointable = frame.pointables[0];
+      //
+      //     var interactionBox = frame.interactionBox;
+      //     var normalizedPosition = interactionBox.normalizePoint(pointable.tipPosition, true);
+      //     var tipPosition = pointable.tipPosition;
+      //     normalizedDisplay.innerText = "(" + normalizedPosition[0] + ", "
+      //                                       + normalizedPosition[1] + ", "
+      //                                       + normalizedPosition[2] + ")";
+      //     tipDisplay.innerText = "(" + tipPosition[0] + ", "
+      //                                + tipPosition[1] + ", "
+      //                                + tipPosition[2] + ")";
+      // }
+
+
+      if (hand = frame.hands[0]) {
+        var interactionBox = frame.interactionBox;
+        var normalizedPosition = interactionBox.normalizePoint(hand.palmPosition, true);
+
+
+        // console.log(hand.screenPosition()[1]);
+        el = document.elementFromPoint(
+          hand.screenPosition()[0],
+          hand.screenPosition()[1]+50
+        );
+
+        if(el) {
+          console.log('current class: '+el.className);
+        }
+        if (el !== null && el.className == 'card') {
+
+          el.classList.add('hover')
+          $('.card:not(#'+el.id+')').removeClass('hover')
+
+          window.gel = el;
+          console.log('got it!')
+        }
+
+        window.handy = frame;
+
+        var position = frame.hands[0].screenPosition();
+        cursor.style.left = position[0]  /*- 50*/ + 'px';
+        cursor.style.top = position[1] + 0 + 'px';
+
+        // hand.hold()
+        // console.log(hand.holding());
+
+        handMesh = frame.hands[0].data('riggedHand.mesh')
+        // to use screenPosition, we pass in any leap vector3 and the camera
+        screenPosition = handMesh.screenPosition(
+          hand.fingers[1].tipPosition
+        );
+        // console.log(screenPosition.x);
+        // console.log(screenPosition.y);
+      }
+    });
+
+    //
+    // Leap.loop(function(frame) {
+    //   window.handy = frame.hands[0]
+    //
+    //     // cursor.style.left = hand.screenPosition
+    // })
+
+
+    </script>
+  </body>
+</html>
